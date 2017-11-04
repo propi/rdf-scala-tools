@@ -1,6 +1,6 @@
 name := "common"
 
-organization := "com.github.rdf-scala-tools"
+organization := "com.github.propi.rdf-scala-tools"
 
 version := "1.0.0"
 

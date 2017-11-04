@@ -1,10 +1,7 @@
 name := "rdf-scala-tools"
 
-val akkaHttp = "com.typesafe.akka" %% "akka-http" % "10.0.9"
-val akkaJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.9"
-
 val basicSettings = Seq(
-  organization := "com.github.rdf-scala-tools",
+  organization := "com.github.propi",
   version := "1.0.0",
   scalaVersion := "2.12.2",
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
