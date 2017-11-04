@@ -1,5 +1,7 @@
 # rdf-scala-tools
 
+[![](https://jitpack.io/v/propi/rdf-scala-tools.svg)](https://jitpack.io/#propi/rdf-scala-tools)
+
 ```
 resolvers += "jitpack" at "https://jitpack.io"
 
