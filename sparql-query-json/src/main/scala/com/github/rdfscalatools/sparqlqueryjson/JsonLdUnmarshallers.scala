@@ -17,12 +17,15 @@ object JsonLdUnmarshallers {
 
   private val mediaType = RdfMediaTypes.`application/ld+json`
 
-  implicit def fromResponseWithAcceptUnmarshallerToJenaModel: FromResponseWithAcceptUnmarshaller[Model] = {
-    implicit val un: FromEntityUnmarshaller[Model] = Unmarshaller.byteArrayUnmarshaller.forContentTypes(mediaType).map { byteArray =>
+  implicit def fromEntityToJenaModelUnmarshaller: FromEntityUnmarshaller[Model] = {
+    Unmarshaller.byteArrayUnmarshaller.forContentTypes(mediaType).map { byteArray =>
       val model = ModelFactory.createDefaultModel()
       RDFDataMgr.read(model, new ByteArrayInputStream(byteArray), Lang.JSONLD)
       model
     }
+  }
+
+  implicit def fromResponseWithAcceptUnmarshallerToJenaModel: FromResponseWithAcceptUnmarshaller[Model] = {
     Some(mediaType) -> implicitly[FromResponseUnmarshaller[Model]]
   }
 
