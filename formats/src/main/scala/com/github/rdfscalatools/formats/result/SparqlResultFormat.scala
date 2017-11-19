@@ -1,6 +1,6 @@
-package com.github.rdfscalatools.sparqlquery.result
+package com.github.rdfscalatools.formats.result
 
-import com.github.rdfscalatools.sparqlquery.result.SparqlResult.ResultTable
+import com.github.rdfscalatools.formats.result.SparqlResult.ResultTable
 
 import scala.language.implicitConversions
 

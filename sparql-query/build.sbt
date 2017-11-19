@@ -10,9 +10,8 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf
 
 resolvers += "jitpack" at "https://jitpack.io"
 
-val common = "com.github.propi.rdf-scala-tools" %% "common" % "1.0.0"
-val akkaHttp = "com.typesafe.akka" %% "akka-http" % "10.0.9"
+val formats = "com.github.propi.rdf-scala-tools" %% "formats" % "1.0.0"
 
-libraryDependencies ++= Seq(common, akkaHttp)
+libraryDependencies ++= Seq(formats)
 
 enablePlugins(SbtTwirl)

@@ -3,11 +3,11 @@ package com.github.rdfscalatools.sparqlqueryrdf4j
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
+import com.github.rdfscalatools.formats.BasicUnmarshallers.FromResponseWithAcceptUnmarshaller
+import com.github.rdfscalatools.formats.sparql.SparqlTemplate
 import com.github.rdfscalatools.sparqlquery.query.QueryOperation
 import com.github.rdfscalatools.sparqlquery.query.http.HttpOneQuery
-import com.github.rdfscalatools.sparqlquery.query.http.HttpOneQuery.FromResponseWithAcceptUnmarshaller
-import com.github.rdfscalatools.sparqlquery.sparql.SparqlTemplate
-import com.github.rdfscalatools.sparqlquery.sparql.SparqlTemplateMarshallers._
+import com.github.rdfscalatools.formats.BasicMarshallers._
 
 /**
   * Created by Vaclav Zeman on 21. 8. 2017.

@@ -1,6 +1,6 @@
-package com.github.rdfscalatools.sparqlquerytriples
+package com.github.rdfscalatools.formats.sparql
 
-import com.github.rdfscalatools.sparqlquery.sparql.SparqlTemplate.{Format, Sparql}
+import com.github.rdfscalatools.formats.sparql.SparqlTemplate.{Format, Sparql}
 import org.apache.jena.atlas.io.StringWriterI
 import org.apache.jena.graph._
 import org.apache.jena.rdf.model.Model

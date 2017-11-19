@@ -10,22 +10,18 @@ val basicSettings = Seq(
 lazy val root = project
   .in(file("."))
   .settings(basicSettings: _*)
-  .aggregate(common, sparqlQuery, sparqlQueryJson, sparqlQueryTriples, sparqlQueryRdf4j)
+  .aggregate(common, formats, sparqlQuery, sparqlQueryRdf4j)
 
 lazy val common = project
   .in(file("common"))
 
-lazy val sparqlQuery = project
-  .in(file("sparql-query"))
+lazy val formats = project
+  .in(file("formats"))
   .dependsOn(common)
 
-lazy val sparqlQueryJson = project
-  .in(file("sparql-query-json"))
-  .dependsOn(sparqlQuery)
-
-lazy val sparqlQueryTriples = project
-  .in(file("sparql-query-triples"))
-  .dependsOn(sparqlQuery)
+lazy val sparqlQuery = project
+  .in(file("sparql-query"))
+  .dependsOn(formats)
 
 lazy val sparqlQueryRdf4j = project
   .in(file("sparql-query-rdf4j"))

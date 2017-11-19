@@ -2,10 +2,10 @@ package com.github.rdfscalatools.sparqlqueryrdf4j
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import com.github.rdfscalatools.sparqlquery.query.http.HttpOneQuery.FromResponseWithAcceptUnmarshaller
+import com.github.rdfscalatools.formats.BasicUnmarshallers.FromResponseWithAcceptUnmarshaller
+import com.github.rdfscalatools.formats.result.SparqlResult.ResultTable
+import com.github.rdfscalatools.formats.sparql.SparqlTemplate
 import com.github.rdfscalatools.sparqlquery.query.{OneQuery, QueryBuilder, QueryOperation, Transaction}
-import com.github.rdfscalatools.sparqlquery.result.SparqlResult.ResultTable
-import com.github.rdfscalatools.sparqlquery.sparql.SparqlTemplate
 
 import scala.concurrent.{ExecutionContext, Future}
 

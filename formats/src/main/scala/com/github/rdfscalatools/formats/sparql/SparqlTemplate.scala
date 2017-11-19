@@ -1,6 +1,6 @@
-package com.github.rdfscalatools.sparqlquery.sparql
+package com.github.rdfscalatools.formats.sparql
 
-import com.github.rdfscalatools.sparqlquery.RdfMediaTypes
+import com.github.rdfscalatools.formats.RdfMediaTypes
 import play.twirl.api.{BufferedContent, Formats}
 
 import scala.collection.immutable

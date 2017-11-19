@@ -6,7 +6,7 @@ import akka.http.scaladsl.marshalling.{Marshal, ToEntityMarshaller}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.{FromResponseUnmarshaller, Unmarshal}
 import akka.stream.Materializer
-import com.github.rdfscalatools.sparqlquery.query.http.HttpOneQuery.FromResponseWithAcceptUnmarshaller
+import com.github.rdfscalatools.formats.BasicUnmarshallers.FromResponseWithAcceptUnmarshaller
 import com.github.rdfscalatools.sparqlquery.query.{OneQuery, QueryOperation}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,13 +42,5 @@ abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, materialize
     )
     Http().singleRequest(beforeRequest(operation, defaultRequest)).flatMap(response => Unmarshal(afterResponse(operation, response)).to[O])
   }
-
-}
-
-object HttpOneQuery {
-
-  type FromResponseWithAcceptUnmarshaller[T] = (Option[MediaType], FromResponseUnmarshaller[T])
-
-  implicit def fromResponseWithAcceptUnmarshallerToResponseUnmarshaller[T](un: FromResponseWithAcceptUnmarshaller[T]): FromResponseUnmarshaller[T] = un._2
 
 }

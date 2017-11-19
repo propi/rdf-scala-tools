@@ -1,11 +1,11 @@
-package com.github.rdfscalatools.sparqlquery.sparql
+package com.github.rdfscalatools.sparqlquery.query
 
-import com.github.rdfscalatools.sparqlquery.query._
+import com.github.rdfscalatools.formats.sparql.SparqlTemplate
 
 import scala.concurrent.Future
 
 /**
-  * Created by Vaclav Zeman on 30. 8. 2017.
+  * Created by Vaclav Zeman on 18. 11. 2017.
   */
 object SparqlTemplateOps {
 

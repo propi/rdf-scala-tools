@@ -1,4 +1,4 @@
-package com.github.rdfscalatools.sparqlquery.result
+package com.github.rdfscalatools.formats.result
 
 import akka.http.scaladsl.model
 import com.github.rdfscalatools.common.CommonExceptions.DeserializationException
