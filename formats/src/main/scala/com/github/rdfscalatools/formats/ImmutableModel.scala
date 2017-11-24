@@ -1,22 +1,27 @@
 package com.github.rdfscalatools.formats
 
-import akka.http.scaladsl.model.{ContentType, HttpEntity}
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
-import com.github.rdfscalatools.formats.BasicUnmarshallers._
-import com.github.rdfscalatools.formats.RdfMediaTypes._
-import org.apache.jena.rdf.model.Model
+import java.io.ByteArrayInputStream
 
-import scala.concurrent.{ExecutionContext, Future}
+import akka.http.scaladsl.model.{ContentType, MediaType}
+import org.apache.jena.rdf.model.{Model, ModelFactory}
+import org.apache.jena.riot.{Lang, RDFDataMgr}
+
+import scala.util.Try
 
 /**
   * Created by Vaclav Zeman on 18. 11. 2017.
   */
 case class ImmutableModel(contentType: ContentType, data: Array[Byte]) {
 
-  def model(implicit materializer: Materializer, ec: ExecutionContext): Future[Model] = Unmarshal[HttpEntity](HttpEntity(contentType, data)).to[Model]
+  def model(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): Option[Model] = {
+    val model = ModelFactory.createDefaultModel()
+    Try {
+      RDFDataMgr.read(model, new ByteArrayInputStream(data), contentType.mediaType)
+      model
+    }.toOption
+  }
 
-  def cached(implicit materializer: Materializer, ec: ExecutionContext): Future[ImmutableModel.Cached] = model.map(ImmutableModel.Cached(contentType, data, _))
+  def cached(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): Option[ImmutableModel.Cached] = model.map(ImmutableModel.Cached(contentType, data, _))
 
 }
 
@@ -24,6 +29,10 @@ object ImmutableModel {
 
   case class Cached(contentType: ContentType, data: Array[Byte], model: Model) {
     def toImmutableModel: ImmutableModel = ImmutableModel(contentType, data)
+  }
+
+  object Model {
+    def unapply(arg: ImmutableModel): Option[Model] = arg.model
   }
 
 }
