@@ -1,6 +1,7 @@
 package com.github.rdfscalatools.sparqlquery.query
 
 import com.github.rdfscalatools.formats.sparql.SparqlTemplate
+import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.Future
 
@@ -9,7 +10,15 @@ import scala.concurrent.Future
   */
 object SparqlTemplateOps {
 
-  def execute[T](operation: QueryOperation, query: SparqlTemplate.Sparql)(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, T]): Future[T] = oneQuery.execute(operation, query)
+  private val logger = Logger[SparqlTemplateOps.type]
+
+  def execute[T](operation: QueryOperation, query: SparqlTemplate.Sparql)(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, T]): Future[T] = {
+    if (logger.underlying.isTraceEnabled) {
+      logger.trace(operation.toString)
+      logger.trace(query.toString())
+    }
+    oneQuery.execute(operation, query)
+  }
 
   implicit class PimpedSparqlTemplate(query: SparqlTemplate.Sparql) {
     private def _get[O](implicit oneQuery: OneQuery[SparqlTemplate.Sparql, O]): Future[O] = execute(QueryOperation.Read, query)

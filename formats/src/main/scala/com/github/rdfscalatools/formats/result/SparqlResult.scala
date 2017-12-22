@@ -37,7 +37,8 @@ object SparqlResult {
   }
 
   implicit val valueToString: SparqlResult => String = {
-    case SparqlResult.StringLiteral(value) => value
+    case x: SparqlResult.Literal[_] => x.value.toString
+    case SparqlResult.Uri(x) => x
     case x => throw DeserializationException(s"Value '$x' is not a string.")
   }
 

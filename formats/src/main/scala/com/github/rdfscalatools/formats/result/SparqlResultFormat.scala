@@ -1,8 +1,10 @@
 package com.github.rdfscalatools.formats.result
 
+import com.github.rdfscalatools.common.CommonExceptions.DeserializationException
 import com.github.rdfscalatools.formats.result.SparqlResult.ResultTable
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
   * Created by Vaclav Zeman on 24. 8. 2017.
@@ -33,12 +35,18 @@ object SparqlResultFormat {
         val x2 = vfromt(kvt2)
         f(x1, x2)
       })
+
+      def flatMap[A](f: (T1, T2) => KeyValueTransformer[A]): KeyValueTransformer[A] = Composed({ implicit mapper =>
+        vfromt(vfromt(map(f)))
+      })
     }
 
   }
 
   implicit class PimpedKey(key: String) {
     def as[T](implicit tf: SparqlResult => T): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, tf)
+
+    def asO[T <: SparqlResult](implicit tag: ClassTag[T]): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, x => tag.unapply(x).getOrElse(throw DeserializationException(s"Value '$x' is not class of ${tag.toString()}.")))
   }
 
   private def vfromt[T](kvt: KeyValueTransformer[T])(implicit tr: Map[String, SparqlResult]): T = kvt match {

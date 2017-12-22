@@ -11,7 +11,15 @@ import scala.util.Try
 /**
   * Created by Vaclav Zeman on 18. 11. 2017.
   */
-case class ImmutableModel(contentType: ContentType, data: Array[Byte]) {
+case class ImmutableModel private(lang: String, data: Array[Byte]) {
+
+  @transient lazy val contentType: ContentType = {
+    val jsonld = Lang.JSONLD.getName
+    lang match {
+      case `jsonld` => RdfMediaTypes.`application/ld+json`
+      case _ => RdfMediaTypes.`text/turtle`
+    }
+  }
 
   def model(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): Option[Model] = {
     val model = ModelFactory.createDefaultModel()
@@ -26,6 +34,8 @@ case class ImmutableModel(contentType: ContentType, data: Array[Byte]) {
 }
 
 object ImmutableModel {
+
+  def apply(contentType: ContentType, data: Array[Byte])(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): ImmutableModel = new ImmutableModel(contentType.mediaType.getName, data)
 
   case class Cached(contentType: ContentType, data: Array[Byte], model: Model) {
     def toImmutableModel: ImmutableModel = ImmutableModel(contentType, data)

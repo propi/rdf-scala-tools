@@ -66,6 +66,8 @@ object SparqlTemplate {
 
     def typedLiteral(string: String, _uri: String): Sparql = literal(string).body + "^^" + uri(_uri).body
 
+    def in(col: Traversable[Sparql]): Sparql = col.reduceLeftOption((a, b) => a.toString() + ", " + b.toString()).getOrElse("")
+
   }
 
   class Sparql private(elements: immutable.Seq[Sparql], text: String) extends BufferedContent[Sparql](elements, text) {
