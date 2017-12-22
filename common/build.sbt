@@ -2,7 +2,7 @@ name := "common"
 
 organization := "com.github.propi.rdf-scala-tools"
 
-version := "1.0.0"
+version := "1.0.1"
 
 scalaVersion := "2.12.2"
 
