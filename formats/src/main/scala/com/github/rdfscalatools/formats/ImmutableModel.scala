@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream
 
 import akka.http.scaladsl.model.{ContentType, MediaType}
 import org.apache.jena.rdf.model.{Model, ModelFactory}
-import org.apache.jena.riot.{Lang, RDFDataMgr}
+import org.apache.jena.riot.{Lang, RDFDataMgr, RDFFormat}
 
 import scala.util.Try
 
@@ -21,21 +21,21 @@ case class ImmutableModel private(lang: String, data: Array[Byte]) {
     }
   }
 
-  def model(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): Option[Model] = {
+  def model(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): Option[Model] = {
     val model = ModelFactory.createDefaultModel()
     Try {
-      RDFDataMgr.read(model, new ByteArrayInputStream(data), contentType.mediaType)
+      RDFDataMgr.read(model, new ByteArrayInputStream(data), contentType.mediaType.getLang)
       model
     }.toOption
   }
 
-  def cached(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): Option[ImmutableModel.Cached] = model.map(ImmutableModel.Cached(contentType, data, _))
+  def cached(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): Option[ImmutableModel.Cached] = model.map(ImmutableModel.Cached(contentType, data, _))
 
 }
 
 object ImmutableModel {
 
-  def apply(contentType: ContentType, data: Array[Byte])(implicit mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): ImmutableModel = new ImmutableModel(contentType.mediaType.getName, data)
+  def apply(contentType: ContentType, data: Array[Byte])(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): ImmutableModel = new ImmutableModel(contentType.mediaType.getLang.getName, data)
 
   case class Cached(contentType: ContentType, data: Array[Byte], model: Model) {
     def toImmutableModel: ImmutableModel = ImmutableModel(contentType, data)

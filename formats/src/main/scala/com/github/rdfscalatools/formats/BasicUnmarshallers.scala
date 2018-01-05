@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.{ContentTypeRange, HttpResponse, MediaType}
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromResponseUnmarshaller, Unmarshaller}
 import com.github.rdfscalatools.formats.ImmutableModel.Cached
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.riot.Lang
+import org.apache.jena.riot.RDFFormat
 
 import scala.language.implicitConversions
 
@@ -23,11 +23,11 @@ object BasicUnmarshallers {
     }
   }
 
-  implicit def fromEntityToCachedUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): FromEntityUnmarshaller[Cached] = {
+  implicit def fromEntityToCachedUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): FromEntityUnmarshaller[Cached] = {
     un.map(_.cached.getOrElse(throw Unmarshaller.NoContentException))
   }
 
-  implicit def fromEntityToJenaModelUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaLang: MediaType => Lang = RdfMediaTypes.mediaTypeToJenaLang): FromEntityUnmarshaller[Model] = {
+  implicit def fromEntityToJenaModelUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): FromEntityUnmarshaller[Model] = {
     un.map(_.model.getOrElse(throw Unmarshaller.NoContentException))
   }
 

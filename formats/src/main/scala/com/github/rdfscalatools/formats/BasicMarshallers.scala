@@ -7,7 +7,7 @@ import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
 import akka.http.scaladsl.model.{HttpCharset, HttpEntity, MediaType, MessageEntity}
 import com.github.rdfscalatools.formats.sparql.SparqlTemplate
 import org.apache.jena.rdf.model.Model
-import org.apache.jena.riot.{Lang, RDFDataMgr}
+import org.apache.jena.riot.{RDFDataMgr, RDFFormat}
 import spray.json.{CompactPrinter, JsValue, JsonPrinter}
 
 /**
@@ -15,7 +15,7 @@ import spray.json.{CompactPrinter, JsValue, JsonPrinter}
   */
 object BasicMarshallers {
 
-  implicit def fromJenaModelToEntityMarshaller(implicit mediaTypeToJenaLang: MediaType => Lang, additionalMediaTypes: List[MediaType.WithFixedCharset] = Nil): ToEntityMarshaller[Model] = {
+  implicit def fromJenaModelToEntityMarshaller(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat, additionalMediaTypes: List[MediaType.WithFixedCharset] = Nil): ToEntityMarshaller[Model] = {
     Marshaller.oneOf(RdfMediaTypes.defaultFormats ::: additionalMediaTypes: _*) { mediaType =>
       Marshaller.byteArrayMarshaller(mediaType).compose[Model] { model =>
         val bos = new ByteArrayOutputStream()

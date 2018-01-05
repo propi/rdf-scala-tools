@@ -1,7 +1,7 @@
 package com.github.rdfscalatools.formats
 
 import akka.http.scaladsl.model.{HttpCharsets, MediaType}
-import org.apache.jena.riot.Lang
+import org.apache.jena.riot.RDFFormat
 
 import scala.language.implicitConversions
 
@@ -10,10 +10,10 @@ import scala.language.implicitConversions
   */
 object RdfMediaTypes {
 
-  implicit def mediaTypeToJenaLang(mediaType: MediaType): Lang = {
+  implicit def mediaTypeToJenaFormat(mediaType: MediaType): RDFFormat = {
     mediaType match {
-      case RdfMediaTypes.`application/ld+json` => Lang.JSONLD
-      case RdfMediaTypes.`text/turtle` => Lang.TTL
+      case RdfMediaTypes.`application/ld+json` => RDFFormat.JSONLD
+      case RdfMediaTypes.`text/turtle` => RDFFormat.TURTLE
       case _ => throw new IllegalArgumentException(s"Media type '${mediaType.value}' is not RDF type.")
     }
   }
