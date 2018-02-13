@@ -2,6 +2,7 @@ package com.github.rdfscalatools.formats.result
 
 import akka.http.scaladsl.model
 import com.github.rdfscalatools.common.CommonExceptions.DeserializationException
+import org.apache.jena.graph.{Node, Node_Blank, Node_Literal, Node_URI}
 
 /**
   * Created by Vaclav Zeman on 30. 8. 2017.
@@ -11,6 +12,24 @@ sealed trait SparqlResult
 object SparqlResult {
 
   type ResultTable = IndexedSeq[Map[String, SparqlResult]]
+
+  def apply(node: Node): SparqlResult = node match {
+    case x: Node_Literal => x.getLiteralValue match {
+      case x: java.lang.Integer => IntLiteral(x.intValue())
+      case x: java.lang.Double => DoubleLiteral(x.doubleValue())
+      case x: java.lang.Short => IntLiteral(x.shortValue())
+      case x: java.lang.Float => DoubleLiteral(x.floatValue())
+      case x: java.lang.Long => DoubleLiteral(x.longValue())
+      case x: java.lang.Byte => IntLiteral(x.byteValue())
+      case x: java.lang.Boolean => BooleanLiteral(x.booleanValue())
+      case x: java.math.BigInteger => DoubleLiteral(x.longValueExact())
+      case x: java.math.BigDecimal => DoubleLiteral(x.doubleValue())
+      case _ => StringLiteral(x.getLiteralLexicalForm)
+    }
+    case x: Node_URI => Uri(x.getURI)
+    case x: Node_Blank => Uri(x.getURI)
+    case _ => throw new IllegalArgumentException
+  }
 
   case class Uri(uri: String) extends SparqlResult
 

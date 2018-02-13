@@ -1,13 +1,27 @@
 package com.github.rdfscalatools.sparqlquerytdb
 
 import com.github.rdfscalatools.sparqlquery.query.Transaction
-import org.apache.jena.query.Dataset
+import com.typesafe.scalalogging.Logger
+
+import scala.concurrent.ExecutionContext
 
 /**
   * Created by Vaclav Zeman on 9. 2. 2018.
   */
-class RepositoryTransaction(implicit dataset: Dataset) extends Transaction {
-  def commit(): Unit = dataset.commit()
+class RepositoryTransaction private[sparqlquerytdb](val session: RepositorySession)(implicit ec: ExecutionContext) extends Transaction {
 
-  def rollback(): Unit = dataset.abort()
+  private val logger = Logger[RepositoryTransaction]
+
+  def commit(): Unit = {
+    val result = session.commit()
+    result.failed.foreach(th => logger.error("Error within 'commit' query: " + th.getMessage, th))
+    result.onComplete(_ => session.close())
+  }
+
+  def rollback(): Unit = {
+    val result = session.rollback()
+    result.failed.foreach(th => logger.error("Error within 'rollback' query: " + th.getMessage, th))
+    result.onComplete(_ => session.close())
+  }
+
 }

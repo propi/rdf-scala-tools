@@ -1,6 +1,6 @@
 package com.github.rdfscalatools.sparqlquery.query
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -22,14 +22,14 @@ object Transaction {
     def rollback(): Unit = {}
   }
 
-  def apply[O, T <: Transaction](f: TransactionOps[T] => Future[Option[O]])(implicit transactionBuilder: TransactionBuilder[T], ec: ExecutionContext): Future[Option[O]] = {
+  def apply[O, T <: Transaction](f: TransactionOps[T] => Future[O])(implicit transactionBuilder: TransactionBuilder[T], ec: ExecutionContext): Future[O] = {
     val tx = transactionBuilder()
-    val result = Future.fromTry(Try(f(new TransactionOps(tx)))).flatten
-    result.onComplete {
-      case Failure(_) => tx.rollback()
-      case Success(x) => if (x.isDefined) tx.commit() else tx.rollback()
+    val result = Promise[O]
+    Future.fromTry(Try(f(new TransactionOps(tx)))).flatten.onComplete {
+      case Success(x) => result.complete(Try(tx.commit()).map(_ => x))
+      case Failure(th) => Try(tx.rollback()); result.failure(th)
     }
-    result
+    result.future
   }
 
 }

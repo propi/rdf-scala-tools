@@ -14,10 +14,9 @@ import scala.util.Try
 sealed trait Repository {
   protected def createDataset: Dataset
 
-  def use[T](f: DatasetDispatcher => Future[T])(implicit ec: ExecutionContext): Future[T] = {
-    val dataset = new DatasetDispatcher(createDataset)
-    new Thread(dataset).start()
-    val result = Future.fromTry(Try(f(dataset))).flatten
+  def use[T](f: RepositorySession => Future[T])(implicit ec: ExecutionContext): Future[T] = {
+    val dataset = createDataset
+    val result = Future.fromTry(Try(RepositorySession[T](dataset)(f))).flatten
     result.onComplete(_ => dataset.close())
     result
   }
