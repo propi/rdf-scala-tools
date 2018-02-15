@@ -10,9 +10,3 @@ trait OneQuery[I, O] {
   def execute(operation: QueryOperation, input: I): Future[O]
 
 }
-
-object OneQuery {
-
-  def apply[I, O, T <: Transaction]()(implicit queryBuilder: QueryBuilder[I, O, T]): OneQuery[I, O] = queryBuilder()
-
-}

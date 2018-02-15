@@ -22,10 +22,10 @@ object Transaction {
     def rollback(): Unit = {}
   }
 
-  def apply[O, T <: Transaction](f: TransactionOps[T] => Future[O])(implicit transactionBuilder: TransactionBuilder[T], ec: ExecutionContext): Future[O] = {
+  def apply[O, T <: Transaction](f: T => Future[O])(implicit transactionBuilder: TransactionBuilder[T], ec: ExecutionContext): Future[O] = {
     val tx = transactionBuilder()
     val result = Promise[O]
-    Future.fromTry(Try(f(new TransactionOps(tx)))).flatten.onComplete {
+    Future.fromTry(Try(f(tx))).flatten.onComplete {
       case Success(x) => result.complete(Try(tx.commit()).map(_ => x))
       case Failure(th) => Try(tx.rollback()); result.failure(th)
     }

@@ -21,7 +21,7 @@ object SparqlResultFormat {
 
   object KeyValueTransformer {
 
-    case class Basic[T](key: String, tf: SparqlResult => T) extends KeyValueTransformer[T] {
+    case class Basic[T](key: String, tf: Option[SparqlResult] => T) extends KeyValueTransformer[T] {
       def map[A](f: T => A): KeyValueTransformer[A] = new Basic[A](key, tf andThen f)
     }
 
@@ -44,13 +44,13 @@ object SparqlResultFormat {
   }
 
   implicit class PimpedKey(key: String) {
-    def as[T](implicit tf: SparqlResult => T): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, tf)
+    def as[T](implicit tf: Option[SparqlResult] => T): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, tf)
 
     def asO[T <: SparqlResult](implicit tag: ClassTag[T]): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, x => tag.unapply(x).getOrElse(throw DeserializationException(s"Value '$x' is not class of ${tag.toString()}.")))
   }
 
   private def vfromt[T](kvt: KeyValueTransformer[T])(implicit tr: Map[String, SparqlResult]): T = kvt match {
-    case KeyValueTransformer.Basic(key, tf) => tf(tr(key))
+    case KeyValueTransformer.Basic(key, tf) => tf(tr.get(key))
     case KeyValueTransformer.Mapped(v) => v
     case KeyValueTransformer.Composed(tf) => tf(tr)
   }

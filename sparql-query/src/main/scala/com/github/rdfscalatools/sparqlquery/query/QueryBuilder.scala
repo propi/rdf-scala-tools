@@ -8,8 +8,6 @@ import scala.util.{Failure, Success}
   */
 trait QueryBuilder[I, O, T <: Transaction] {
 
-  def apply(): OneQuery[I, O]
-
   def apply(transaction: T): OneQuery[I, O]
 
 }
@@ -21,8 +19,6 @@ object QueryBuilder {
       case Success(x) => Success(Some(x))
       case Failure(_) => Success(None)
     }
-
-    def apply(): OneQuery[I, Option[O]] = mapOneQuery(qb.apply())
 
     def apply(transaction: T): OneQuery[I, Option[O]] = mapOneQuery(qb.apply(transaction))
   }

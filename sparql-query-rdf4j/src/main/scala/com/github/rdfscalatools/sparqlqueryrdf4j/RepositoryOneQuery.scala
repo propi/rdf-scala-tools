@@ -12,7 +12,7 @@ import com.github.rdfscalatools.formats.BasicMarshallers._
 /**
   * Created by Vaclav Zeman on 21. 8. 2017.
   */
-abstract class RepositoryOneQuery[O](implicit actorSystem: ActorSystem, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[O])
+class RepositoryOneQuery[O] private[sparqlqueryrdf4j](implicit actorSystem: ActorSystem, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[O])
   extends HttpOneQuery[SparqlTemplate.Sparql, O] {
 
   protected def operationToHttpMethod(operation: QueryOperation): HttpMethod = HttpMethods.POST
@@ -20,14 +20,14 @@ abstract class RepositoryOneQuery[O](implicit actorSystem: ActorSystem, material
   protected def operationToUri(operation: QueryOperation): Uri = {
     val repositoryUri = Uri(repository.endpoint + "/" + "repositories" + "/" + repository.name)
     operation match {
-      case QueryOperation.Insert | QueryOperation.Update | QueryOperation.Delete => repositoryUri.withPath(repositoryUri.path / "statements")
-      case QueryOperation.Read => repositoryUri
+      case QueryOperation.Update => repositoryUri.withPath(repositoryUri.path / "statements")
+      case _ => repositoryUri
     }
   }
 
   override protected def beforeRequest(operation: QueryOperation, request: HttpRequest): HttpRequest = operation match {
-    case QueryOperation.Insert | QueryOperation.Update | QueryOperation.Delete => request.mapEntity(toSparqlUpdateWithCharset(HttpCharsets.`UTF-8`))
-    case QueryOperation.Read => request.mapEntity(toSparqlQueryWithCharset(HttpCharsets.`UTF-8`))
+    case QueryOperation.Update => request.mapEntity(toSparqlUpdateWithCharset(HttpCharsets.`UTF-8`))
+    case _ => request.mapEntity(toSparqlQueryWithCharset(HttpCharsets.`UTF-8`))
   }
 
 }

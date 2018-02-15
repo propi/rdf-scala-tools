@@ -77,4 +77,11 @@ object SparqlResult {
     case x => throw DeserializationException(s"Value '$x' is not integer.")
   }
 
+  implicit def optValueToAny[T](implicit f: SparqlResult => T): Option[SparqlResult] => T = {
+    case Some(value) => f(value)
+    case None => throw DeserializationException(s"Value does not exist.")
+  }
+
+  implicit def optValueToOptAny[T](implicit f: SparqlResult => T): Option[SparqlResult] => Option[T] = _.map(f)
+
 }

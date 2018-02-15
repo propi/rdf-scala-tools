@@ -7,12 +7,14 @@ sealed trait QueryOperation
 
 object QueryOperation {
 
-  object Read extends QueryOperation
+  case object Ask extends QueryOperation
 
-  object Insert extends QueryOperation
+  case object Construct extends QueryOperation
 
-  object Update extends QueryOperation
+  case object Describe extends QueryOperation
 
-  object Delete extends QueryOperation
+  case object Select extends QueryOperation
+
+  case object Update extends QueryOperation
 
 }

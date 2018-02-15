@@ -12,7 +12,7 @@ object SparqlTemplateOps {
 
   private val logger = Logger[SparqlTemplateOps.type]
 
-  def execute[T](operation: QueryOperation, query: SparqlTemplate.Sparql)(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, T]): Future[T] = {
+  private def execute[T](operation: QueryOperation, query: SparqlTemplate.Sparql, oneQuery: OneQuery[SparqlTemplate.Sparql, T]): Future[T] = {
     if (logger.underlying.isTraceEnabled) {
       logger.trace(operation.toString)
       logger.trace(query.toString())
@@ -21,29 +21,15 @@ object SparqlTemplateOps {
   }
 
   implicit class PimpedSparqlTemplate(query: SparqlTemplate.Sparql) {
-    private def _get[O](implicit oneQuery: OneQuery[SparqlTemplate.Sparql, O]): Future[O] = execute(QueryOperation.Read, query)
+    def select[O, T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, O, T], transaction: T): Future[O] = execute(QueryOperation.Select, query, queryBuilder(transaction))
 
-    def get[O](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, O, _]): Future[O] = _get(queryBuilder())
+    def construct[O, T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, O, T], transaction: T): Future[O] = execute(QueryOperation.Construct, query, queryBuilder(transaction))
 
-    def getTx[O, T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, O, T], transactionOps: TransactionOps[T]): Future[O] = _get(transactionOps.query)
+    def describe[O, T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, O, T], transaction: T): Future[O] = execute(QueryOperation.Describe, query, queryBuilder(transaction))
 
-    private def _insert(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, Boolean]): Future[Boolean] = execute(QueryOperation.Insert, query)
+    def ask[T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, T], transaction: T): Future[Boolean] = execute(QueryOperation.Ask, query, queryBuilder(transaction))
 
-    def insert(implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, _]): Future[Boolean] = _insert(queryBuilder())
-
-    def insertTx[T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, T], transactionOps: TransactionOps[T]): Future[Boolean] = _insert(transactionOps.query)
-
-    private def _update(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, Boolean]): Future[Boolean] = execute(QueryOperation.Update, query)
-
-    def update(implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, _]): Future[Boolean] = _update(queryBuilder())
-
-    def updateTx[T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, T], transactionOps: TransactionOps[T]): Future[Boolean] = _update(transactionOps.query)
-
-    private def _delete(implicit oneQuery: OneQuery[SparqlTemplate.Sparql, Boolean]): Future[Boolean] = execute(QueryOperation.Delete, query)
-
-    def delete(implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, _]): Future[Boolean] = _delete(queryBuilder())
-
-    def deleteTx[T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Boolean, T], transactionOps: TransactionOps[T]): Future[Boolean] = _delete(transactionOps.query)
+    def update[T <: Transaction](implicit queryBuilder: QueryBuilder[SparqlTemplate.Sparql, Unit, T], transaction: T): Future[Unit] = execute(QueryOperation.Update, query, queryBuilder(transaction))
   }
 
 }
