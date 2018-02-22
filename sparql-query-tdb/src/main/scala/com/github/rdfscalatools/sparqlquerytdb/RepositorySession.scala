@@ -2,19 +2,21 @@ package com.github.rdfscalatools.sparqlquerytdb
 
 import com.github.rdfscalatools.formats.result.ResultSetOps._
 import com.github.rdfscalatools.formats.result.SparqlResult.ResultTable
+import com.typesafe.scalalogging.Logger
 import org.apache.jena.query.{Dataset, QueryExecutionFactory, ReadWrite}
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.update.UpdateAction
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
   * Created by Vaclav Zeman on 9. 2. 2018.
   */
 class RepositorySession private(dataset: Dataset) extends Runnable {
+
+  private val logger = Logger[RepositorySession]
 
   private val children = ListBuffer.empty[RepositorySession]
 
@@ -114,43 +116,50 @@ class RepositorySession private(dataset: Dataset) extends Runnable {
   }
 
   def run(): Unit = this.synchronized {
-    implicitly[ClassTag[Message.Select]]
     var isOpen = true
     while (isOpen) {
-      this.wait()
+      if (messages.isEmpty) this.wait()
       while (isOpen && messages.nonEmpty) {
         val message = messages.dequeue()
         message match {
           case Message.Update(sparql, result) =>
+            logger.trace("Update query.")
             result.complete(Try(UpdateAction.parseExecute(sparql, dataset)))
           case Message.Select(sparql, result) =>
+            logger.trace("Select query.")
             result.complete(Try {
               val qexec = QueryExecutionFactory.create(sparql, dataset)
               qexec.execSelect().toResultTable
             })
           case Message.Construct(sparql, result) =>
+            logger.trace("Construct query.")
             result.complete(Try {
               val qexec = QueryExecutionFactory.create(sparql, dataset)
               qexec.execConstruct()
             })
           case Message.Ask(sparql, result) =>
+            logger.trace("Ask query.")
             result.complete(Try {
               val qexec = QueryExecutionFactory.create(sparql, dataset)
               qexec.execAsk()
             })
           case Message.Describe(sparql, result) =>
+            logger.trace("Describe query.")
             result.complete(Try {
               val qexec = QueryExecutionFactory.create(sparql, dataset)
               qexec.execDescribe()
             })
           case Message.StartTransaction(readOnly, result) =>
+            if (readOnly) logger.trace("Start read-only transaction.") else logger.trace("Start writable transaction.")
             result.complete(Try(dataset.begin(if (readOnly) ReadWrite.READ else ReadWrite.WRITE)))
           case Message.Commit(result) =>
+            logger.trace("Commit query.")
             result.complete(Try {
               dataset.commit()
               dataset.end()
             })
           case Message.Rollback(result) =>
+            logger.trace("Rollback query.")
             result.complete(Try {
               dataset.abort()
               dataset.end()
@@ -160,6 +169,7 @@ class RepositorySession private(dataset: Dataset) extends Runnable {
         }
       }
     }
+    logger.trace("Dataset session closed")
   }
 
 }
@@ -168,9 +178,14 @@ object RepositorySession {
 
   def apply[T](dataset: Dataset)(f: RepositorySession => Future[T])(implicit ec: ExecutionContext): Future[T] = {
     val session = new RepositorySession(dataset)
-    new Thread(session).start()
+    session.logger.trace("New dataset session opened: " + session)
+    val thread = new Thread(session)
+    thread.start()
     val result = Future.fromTry(Try(f(session))).flatten
-    result.onComplete(_ => session.close())
+    result.onComplete { _ =>
+      session.logger.trace("Try to close dataset session: " + thread)
+      session.close()
+    }
     result
   }
 

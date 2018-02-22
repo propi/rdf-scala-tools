@@ -12,20 +12,19 @@ import scala.util.Try
   * Created by Vaclav Zeman on 21. 8. 2017.
   */
 sealed trait Repository {
-  protected def createDataset: Dataset
+  protected val dataset: Dataset
+
+  def close(): Unit = dataset.close()
 
   def use[T](f: RepositorySession => Future[T])(implicit ec: ExecutionContext): Future[T] = {
-    val dataset = createDataset
-    val result = Future.fromTry(Try(RepositorySession[T](dataset)(f))).flatten
-    result.onComplete(_ => dataset.close())
-    result
+    Future.fromTry(Try(RepositorySession[T](dataset)(f))).flatten
   }
 }
 
 object Repository {
 
   case class InMemory private(id: String) extends Repository {
-    protected def createDataset: Dataset = TDB2Factory.createDataset()
+    protected lazy val dataset: Dataset = TDB2Factory.createDataset()
   }
 
   object InMemory {
@@ -33,7 +32,7 @@ object Repository {
   }
 
   case class Persistent(directory: String) extends Repository {
-    protected def createDataset: Dataset = TDB2Factory.connectDataset(directory)
+    protected lazy val dataset: Dataset = TDB2Factory.connectDataset(directory)
   }
 
 }
