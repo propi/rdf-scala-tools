@@ -5,6 +5,7 @@ import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromResponseUnm
 import com.github.rdfscalatools.formats.ImmutableModel.Cached
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.riot.RDFFormat
+import org.apache.jena.update.UpdateException
 
 import scala.language.implicitConversions
 
@@ -36,5 +37,10 @@ object BasicUnmarshallers {
   }
 
   implicit val fromResponseCodeToBooleanUnmarshaller: FromResponseWithAcceptUnmarshaller[Boolean] = None -> Unmarshaller.strict[HttpResponse, Boolean](_.status.isSuccess())
+
+  implicit val fromResponseCodeToUnitUnmarshaller: FromResponseWithAcceptUnmarshaller[Unit] = None -> fromResponseCodeToBooleanUnmarshaller._2.map {
+    case true => Unit
+    case false => throw new UpdateException("Sparql update process was not successful.")
+  }
 
 }

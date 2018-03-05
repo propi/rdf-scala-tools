@@ -46,7 +46,10 @@ object SparqlResultFormat {
   implicit class PimpedKey(key: String) {
     def as[T](implicit tf: Option[SparqlResult] => T): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, tf)
 
-    def asO[T <: SparqlResult](implicit tag: ClassTag[T]): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(key, x => tag.unapply(x).getOrElse(throw DeserializationException(s"Value '$x' is not class of ${tag.toString()}.")))
+    def asO[T <: SparqlResult](implicit tag: ClassTag[T]): KeyValueTransformer.Basic[T] = KeyValueTransformer.Basic(
+      key,
+      x => tag.unapply(x).orElse(x.flatMap(x => tag.unapply(x))).getOrElse(throw DeserializationException(s"Value '$x' is not class of ${tag.toString()}."))
+    )
   }
 
   private def vfromt[T](kvt: KeyValueTransformer[T])(implicit tr: Map[String, SparqlResult]): T = kvt match {

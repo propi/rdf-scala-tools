@@ -22,6 +22,8 @@ object Transaction {
     def rollback(): Unit = {}
   }
 
+  implicit val emptyTx: Empty.type = Empty
+
   def apply[O, T <: Transaction](f: T => Future[O])(implicit transactionBuilder: TransactionBuilder[T], ec: ExecutionContext): Future[O] = {
     val tx = transactionBuilder()
     val result = Promise[O]
