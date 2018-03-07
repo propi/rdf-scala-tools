@@ -3,3 +3,4 @@ target/
 test/
 *.json
 *.iml
+sparql-query-tdb/src/main/scala/com/github/rdfscalatools/sparqlquerytdb/Test.scala
