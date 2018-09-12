@@ -11,7 +11,7 @@ import scala.reflect.ClassTag
   */
 object SparqlResultFormat {
 
-  implicit def tableToOpt[T](implicit tableToSeq: ResultTable => IndexedSeq[T]): (ResultTable) => Option[T] = table => tableToSeq(table).headOption
+  implicit def tableToOpt[T](implicit tableToSeq: ResultTable => IndexedSeq[T]): ResultTable => Option[T] = table => tableToSeq(table).headOption
 
   implicit def anyToKeyValueTransformer[T](x: T): KeyValueTransformer[T] = KeyValueTransformer.Mapped(x)
 
@@ -78,5 +78,14 @@ object SparqlResultFormat {
                                        (f: (ResultTable => IndexedSeq[A]) => B) =
     f(_.map(implicit x => mapper(vfromt(k1), vfromt(k2), vfromt(k3), vfromt(k4))))
 
+  def mapVariable[T1, T2, T3, T4, T5, A, B](k1: KeyValueTransformer[T1], k2: KeyValueTransformer[T2], k3: KeyValueTransformer[T3], k4: KeyValueTransformer[T4], k5: KeyValueTransformer[T5])
+                                       (mapper: (T1, T2, T3, T4, T5) => A)
+                                       (f: (ResultTable => IndexedSeq[A]) => B) =
+    f(_.map(implicit x => mapper(vfromt(k1), vfromt(k2), vfromt(k3), vfromt(k4), vfromt(k5))))
+
+  def mapVariable[T1, T2, T3, T4, T5, T6, A, B](k1: KeyValueTransformer[T1], k2: KeyValueTransformer[T2], k3: KeyValueTransformer[T3], k4: KeyValueTransformer[T4], k5: KeyValueTransformer[T5], k6: KeyValueTransformer[T6])
+                                           (mapper: (T1, T2, T3, T4, T5, T6) => A)
+                                           (f: (ResultTable => IndexedSeq[A]) => B) =
+    f(_.map(implicit x => mapper(vfromt(k1), vfromt(k2), vfromt(k3), vfromt(k4), vfromt(k5), vfromt(k6))))
 
 }
