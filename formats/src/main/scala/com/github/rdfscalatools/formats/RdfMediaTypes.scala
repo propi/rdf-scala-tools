@@ -14,6 +14,7 @@ object RdfMediaTypes {
     mediaType match {
       case RdfMediaTypes.`application/ld+json` => RDFFormat.JSONLD
       case RdfMediaTypes.`text/turtle` => RDFFormat.TURTLE
+      case RdfMediaTypes.`application/n-triples` => RDFFormat.NTRIPLES_UTF8
       case _ => throw new IllegalArgumentException(s"Media type '${mediaType.value}' is not RDF type.")
     }
   }
@@ -31,6 +32,8 @@ object RdfMediaTypes {
   val `application/ld+json`: MediaType.WithFixedCharset = MediaType.applicationWithFixedCharset("ld+json", HttpCharsets.`UTF-8`, "jsonld")
 
   val `text/turtle`: MediaType.WithFixedCharset = MediaType.textWithFixedCharset("turtle", HttpCharsets.`UTF-8`, "ttl")
+
+  val `application/n-triples`: MediaType.WithFixedCharset = MediaType.applicationWithFixedCharset("plain", HttpCharsets.`UTF-8`, "nt")
 
   val defaultFormats: List[MediaType.WithFixedCharset] = List(RdfMediaTypes.`application/ld+json`, RdfMediaTypes.`text/turtle`)
 

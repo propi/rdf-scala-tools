@@ -1,6 +1,6 @@
 package com.github.rdfscalatools.formats
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 import akka.http.scaladsl.model.{ContentType, MediaType}
 import org.apache.jena.rdf.model.{Model, ModelFactory}
@@ -15,10 +15,22 @@ case class ImmutableModel private(lang: String, data: Array[Byte]) {
 
   @transient lazy val contentType: ContentType = {
     val jsonld = Lang.JSONLD.getName
+    val ntriples = Lang.NTRIPLES.getName
     lang match {
       case `jsonld` => RdfMediaTypes.`application/ld+json`
+      case `ntriples` => RdfMediaTypes.`application/n-triples`
       case _ => RdfMediaTypes.`text/turtle`
     }
+  }
+
+  def withContentType(contentType: ContentType)(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): ImmutableModel = if (contentType.mediaType == this.contentType.mediaType) {
+    this
+  } else {
+    this.model.map { model =>
+      val bos = new ByteArrayOutputStream()
+      RDFDataMgr.write(bos, model, contentType.mediaType)
+      ImmutableModel(contentType, bos.toByteArray)
+    }.getOrElse(this)
   }
 
   def model(implicit mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): Option[Model] = {
