@@ -58,6 +58,26 @@ object SparqlResultFormat {
     case KeyValueTransformer.Composed(tf) => tf(tr)
   }
 
+  implicit def mergeMappers2[T1, T2](implicit f1: SparqlResult.ResultTable => IndexedSeq[T1],
+                                     f2: SparqlResult.ResultTable => IndexedSeq[T2]): SparqlResult.ResultTable => IndexedSeq[(T1, T2)] = rt => f1(rt).zip(f2(rt))
+
+  implicit def mergeMappers3[T1, T2, T3](implicit f1: SparqlResult.ResultTable => IndexedSeq[T1],
+                                         f2: SparqlResult.ResultTable => IndexedSeq[T2],
+                                         f3: SparqlResult.ResultTable => IndexedSeq[T3]): SparqlResult.ResultTable => IndexedSeq[(T1, T2, T3)] = rt => f1(rt).zip(f2(rt)).zip(f3(rt)).map(x => (x._1._1, x._1._2, x._2))
+
+  implicit def mergeMappers4[T1, T2, T3, T4](implicit f1: SparqlResult.ResultTable => IndexedSeq[T1],
+                                             f2: SparqlResult.ResultTable => IndexedSeq[T2],
+                                             f3: SparqlResult.ResultTable => IndexedSeq[T3],
+                                             f4: SparqlResult.ResultTable => IndexedSeq[T4]): SparqlResult.ResultTable => IndexedSeq[(T1, T2, T3, T4)] = rt => f1(rt).zip(f2(rt)).zip(f3(rt).zip(f4(rt))).map(x => (x._1._1, x._1._2, x._2._1, x._2._2))
+
+  implicit def mergeMappers5[T1, T2, T3, T4, T5](implicit f1: SparqlResult.ResultTable => IndexedSeq[T1],
+                                                 f2: SparqlResult.ResultTable => IndexedSeq[T2],
+                                                 f3: SparqlResult.ResultTable => IndexedSeq[T3],
+                                                 f4: SparqlResult.ResultTable => IndexedSeq[T4],
+                                                 f5: SparqlResult.ResultTable => IndexedSeq[T5]): SparqlResult.ResultTable => IndexedSeq[(T1, T2, T3, T4, T5)] = rt => f1(rt).zip(f2(rt)).zip(f3(rt).zip(f4(rt))).zip(f5(rt)).map(x => (x._1._1._1, x._1._1._2, x._1._2._1, x._1._2._2, x._2))
+
+  def mapOneVariable[T, A](k: KeyValueTransformer[T])(f: (ResultTable => IndexedSeq[T]) => A): A = mapVariable(k)(k => k)(f)
+
   def mapVariable[T1, A, B](k1: KeyValueTransformer[T1])
                            (mapper: T1 => A)
                            (f: (ResultTable => IndexedSeq[A]) => B) =

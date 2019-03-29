@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, ToEntityMarshaller}
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.{FromResponseUnmarshaller, Unmarshal}
 import akka.stream.Materializer
 import com.github.rdfscalatools.formats.BasicUnmarshallers.FromResponseWithAcceptUnmarshaller
@@ -15,7 +16,7 @@ import scala.language.implicitConversions
 /**
   * Created by Vaclav Zeman on 14. 8. 2017.
   */
-abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, materializer: Materializer, marshaller: ToEntityMarshaller[I], unmarshaller: FromResponseWithAcceptUnmarshaller[O]) extends OneQuery[I, O] {
+abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, materializer: Materializer, marshaller: ToEntityMarshaller[I], unmarshaller: FromResponseWithAcceptUnmarshaller[O], connectionPoolSetting: Option[ConnectionPoolSettings]) extends OneQuery[I, O] {
 
   implicit private val ec: ExecutionContext = actorSystem.dispatcher
 
@@ -40,7 +41,11 @@ abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, materialize
       ).flatten,
       entity
     )
-    Http().singleRequest(beforeRequest(operation, defaultRequest)).flatMap(response => Unmarshal(afterResponse(operation, response)).to[O])
+    val response = connectionPoolSetting match {
+      case Some(cps) => Http().singleRequest(beforeRequest(operation, defaultRequest), settings = cps)
+      case None => Http().singleRequest(beforeRequest(operation, defaultRequest))
+    }
+    response.flatMap(response => Unmarshal(afterResponse(operation, response)).to[O])
   }
 
 }
