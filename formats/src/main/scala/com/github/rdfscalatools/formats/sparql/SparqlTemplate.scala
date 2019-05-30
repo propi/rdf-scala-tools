@@ -81,6 +81,8 @@ object SparqlTemplate {
 
     def in(col: Traversable[Sparql]): Sparql = col.reduceLeftOption((a, b) => a.toString() + ", " + b.toString()).getOrElse("")
 
+    def variable(x: Char): Sparql = if (x >= 'a' && x <= 'z') "?" + x else throw new InvalidSparqlFormat("Invalid variable character in sparql query")
+
   }
 
   class Sparql private(elements: immutable.Seq[Sparql], text: String) extends BufferedContent[Sparql](elements, text) {
