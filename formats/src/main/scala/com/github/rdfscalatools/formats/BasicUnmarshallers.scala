@@ -24,11 +24,11 @@ object BasicUnmarshallers {
     }
   }
 
-  implicit def fromEntityToCachedUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): FromEntityUnmarshaller[Cached] = {
+  implicit def fromEntityToCachedUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat, mode: ImmutableModel.Mode = ImmutableModel.Mode.Default): FromEntityUnmarshaller[Cached] = {
     un.map(_.cached.getOrElse(throw Unmarshaller.NoContentException))
   }
 
-  implicit def fromEntityToJenaModelUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat): FromEntityUnmarshaller[Model] = {
+  implicit def fromEntityToJenaModelUnmarshaller(implicit un: FromEntityUnmarshaller[ImmutableModel], mediaTypeToJenaFormat: MediaType => RDFFormat = RdfMediaTypes.mediaTypeToJenaFormat, mode: ImmutableModel.Mode = ImmutableModel.Mode.Default): FromEntityUnmarshaller[Model] = {
     un.map(_.model.getOrElse(throw Unmarshaller.NoContentException))
   }
 
