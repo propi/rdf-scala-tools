@@ -16,11 +16,10 @@ object RepositoryQueryBuilder {
 
   type QB[T] = QueryBuilder[SparqlTemplate.Sparql, T, Transaction.Empty.type]
 
-  implicit def anyQueryBuilder[T](implicit actorSystem: ActorSystem, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[T]): QB[T] = (_: Transaction.Empty.type) => new RepositoryOneQuery[T]
+  implicit def anyQueryBuilder[T](implicit actorSystem: ActorSystem, ec: ExecutionContext, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[T]): QB[T] = (_: Transaction.Empty.type) => new RepositoryOneQuery[T]
 
-  implicit def resultTableQueryBuilder[T](implicit actorSystem: ActorSystem, materializer: Materializer, repository: Repository, resultTableUnmarshaller: FromResponseWithAcceptUnmarshaller[ResultTable], tableToAny: ResultTable => T): QB[T] = (transaction: Transaction.Empty.type) => {
+  implicit def resultTableQueryBuilder[T](implicit actorSystem: ActorSystem, ec: ExecutionContext, materializer: Materializer, repository: Repository, resultTableUnmarshaller: FromResponseWithAcceptUnmarshaller[ResultTable], tableToAny: ResultTable => T): QB[T] = (transaction: Transaction.Empty.type) => {
     val oq = anyQueryBuilder[ResultTable].apply(transaction)
-    implicit val ec: ExecutionContext = actorSystem.dispatcher
     (operation: QueryOperation, input: SparqlTemplate.Sparql) => oq.execute(operation, input).map(tableToAny)
   }
 

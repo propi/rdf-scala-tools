@@ -10,10 +10,12 @@ import com.github.rdfscalatools.sparqlquery.query.QueryOperation
 import com.github.rdfscalatools.sparqlquery.query.http.HttpOneQuery
 import com.github.rdfscalatools.formats.BasicMarshallers._
 
+import scala.concurrent.ExecutionContext
+
 /**
   * Created by Vaclav Zeman on 21. 8. 2017.
   */
-class RepositoryOneQuery[O] private[sparqlqueryrdf4j](implicit actorSystem: ActorSystem, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[O], connectionPoolSetting: Option[ConnectionPoolSettings] = None)
+class RepositoryOneQuery[O] private[sparqlqueryrdf4j](implicit actorSystem: ActorSystem, ec: ExecutionContext, materializer: Materializer, repository: Repository, unmarshaller: FromResponseWithAcceptUnmarshaller[O], connectionPoolSetting: Option[ConnectionPoolSettings] = None)
   extends HttpOneQuery[SparqlTemplate.Sparql, O] {
 
   protected def operationToHttpMethod(operation: QueryOperation): HttpMethod = HttpMethods.POST

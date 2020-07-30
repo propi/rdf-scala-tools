@@ -16,9 +16,7 @@ import scala.language.implicitConversions
 /**
   * Created by Vaclav Zeman on 14. 8. 2017.
   */
-abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, materializer: Materializer, marshaller: ToEntityMarshaller[I], unmarshaller: FromResponseWithAcceptUnmarshaller[O], connectionPoolSetting: Option[ConnectionPoolSettings]) extends OneQuery[I, O] {
-
-  implicit private val ec: ExecutionContext = actorSystem.dispatcher
+abstract class HttpOneQuery[I, O](implicit actorSystem: ActorSystem, ec: ExecutionContext, materializer: Materializer, marshaller: ToEntityMarshaller[I], unmarshaller: FromResponseWithAcceptUnmarshaller[O], connectionPoolSetting: Option[ConnectionPoolSettings]) extends OneQuery[I, O] {
 
   implicit private val un: FromResponseUnmarshaller[O] = unmarshaller._2
 
