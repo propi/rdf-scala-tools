@@ -17,14 +17,18 @@ object SparqlTemplateOps {
   private def execute[T](operation: QueryOperation, query: SparqlTemplate.Sparql, oneQuery: OneQuery[SparqlTemplate.Sparql, T])(implicit ec: ExecutionContext): Future[T] = {
     val start = System.nanoTime()
     val f = oneQuery.execute(operation, query)
-    if (logger.underlying.isTraceEnabled) {
+    if (logger.underlying.isTraceEnabled || logger.underlying.isDebugEnabled) {
       f.onComplete { x =>
         val duration = Duration.fromNanos(System.nanoTime() - start)
         val msg = x match {
           case Success(_) => s"has been successful within ${duration.toMillis} ms."
           case Failure(th) => s"has been failed within ${duration.toMillis} ms (${th.getClass.getSimpleName}: ${th.getMessage})."
         }
-        logger.trace(s"Query operation '$operation' $msg\n$query")
+        if (logger.underlying.isTraceEnabled) {
+          logger.trace(s"Query operation '$operation' $msg\n$query")
+        } else if (duration.toMillis >= 500) {
+          logger.debug(s"Query operation '$operation' $msg\n$query")
+        }
       }
     }
     f
