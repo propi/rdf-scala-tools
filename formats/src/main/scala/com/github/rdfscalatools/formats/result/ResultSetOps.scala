@@ -3,7 +3,7 @@ package com.github.rdfscalatools.formats.result
 import com.github.rdfscalatools.formats.result.SparqlResult.ResultTable
 import org.apache.jena.query.ResultSet
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * Created by Vaclav Zeman on 12. 2. 2018.

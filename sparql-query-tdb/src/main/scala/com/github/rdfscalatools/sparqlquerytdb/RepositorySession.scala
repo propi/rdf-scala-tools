@@ -54,56 +54,56 @@ class RepositorySession private(dataset: Dataset) extends Runnable {
   }
 
   def execUpdate(sparql: String): Future[Unit] = this.synchronized {
-    val result = Promise[Unit]
+    val result = Promise[Unit]()
     messages enqueue Message.Update(sparql, result)
     this.notify()
     result.future
   }
 
   def execSelect(sparql: String): Future[ResultTable] = this.synchronized {
-    val result = Promise[ResultTable]
+    val result = Promise[ResultTable]()
     messages enqueue Message.Select(sparql, result)
     this.notify()
     result.future
   }
 
   def execConstruct(sparql: String): Future[Model] = this.synchronized {
-    val result = Promise[Model]
+    val result = Promise[Model]()
     messages enqueue Message.Construct(sparql, result)
     this.notify()
     result.future
   }
 
   def execDescribe(sparql: String): Future[Model] = this.synchronized {
-    val result = Promise[Model]
+    val result = Promise[Model]()
     messages enqueue Message.Describe(sparql, result)
     this.notify()
     result.future
   }
 
   def execAsk(sparql: String): Future[Boolean] = this.synchronized {
-    val result = Promise[Boolean]
+    val result = Promise[Boolean]()
     messages enqueue Message.Ask(sparql, result)
     this.notify()
     result.future
   }
 
   def startTransaction(readOnly: Boolean): Future[Unit] = this.synchronized {
-    val result = Promise[Unit]
+    val result = Promise[Unit]()
     messages enqueue Message.StartTransaction(readOnly, result)
     this.notify()
     result.future
   }
 
   def commit(): Future[Unit] = this.synchronized {
-    val result = Promise[Unit]
+    val result = Promise[Unit]()
     messages enqueue Message.Commit(result)
     this.notify()
     result.future
   }
 
   def rollback(): Future[Unit] = this.synchronized {
-    val result = Promise[Unit]
+    val result = Promise[Unit]()
     messages enqueue Message.Rollback(result)
     this.notify()
     result.future

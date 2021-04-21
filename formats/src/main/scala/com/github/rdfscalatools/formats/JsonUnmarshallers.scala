@@ -58,7 +58,7 @@ object JsonUnmarshallers {
       .flatMap(_.asJsObject.fields.get("bindings"))
       .iterator
       .flatMap(_.convertTo[JsArray].elements)
-      .map(_.asJsObject.fields.mapValues(jsValueToResultValue))
+      .map(_.asJsObject.fields.view.mapValues(jsValueToResultValue).toMap)
       .toIndexedSeq
 
   }

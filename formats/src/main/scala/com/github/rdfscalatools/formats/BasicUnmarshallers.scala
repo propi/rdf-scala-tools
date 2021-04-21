@@ -39,7 +39,7 @@ object BasicUnmarshallers {
   implicit val fromResponseCodeToBooleanUnmarshaller: FromResponseWithAcceptUnmarshaller[Boolean] = None -> Unmarshaller.strict[HttpResponse, Boolean](_.status.isSuccess())
 
   implicit val fromResponseCodeToUnitUnmarshaller: FromResponseWithAcceptUnmarshaller[Unit] = None -> fromResponseCodeToBooleanUnmarshaller._2.map {
-    case true => Unit
+    case true => ()
     case false => throw new UpdateException("Sparql update process was not successful.")
   }
 

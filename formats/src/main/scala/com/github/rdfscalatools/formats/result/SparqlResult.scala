@@ -19,10 +19,10 @@ object SparqlResult {
       case x: java.lang.Double => DoubleLiteral(x.doubleValue())
       case x: java.lang.Short => IntLiteral(x.shortValue())
       case x: java.lang.Float => DoubleLiteral(x.floatValue())
-      case x: java.lang.Long => DoubleLiteral(x.longValue())
+      case x: java.lang.Long => DoubleLiteral(x.longValue().toDouble)
       case x: java.lang.Byte => IntLiteral(x.byteValue())
       case x: java.lang.Boolean => BooleanLiteral(x.booleanValue())
-      case x: java.math.BigInteger => DoubleLiteral(x.longValueExact())
+      case x: java.math.BigInteger => DoubleLiteral(x.longValueExact().toDouble)
       case x: java.math.BigDecimal => DoubleLiteral(x.doubleValue())
       case _ => StringLiteral(x.getLiteralLexicalForm)
     }

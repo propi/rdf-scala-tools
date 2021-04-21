@@ -77,9 +77,14 @@ object SparqlResultFormat {
                                                  f5: SparqlResult.ResultTable => IndexedSeq[T5]): SparqlResult.ResultTable => IndexedSeq[(T1, T2, T3, T4, T5)] = rt => f1(rt).zip(f2(rt)).zip(f3(rt).zip(f4(rt))).zip(f5(rt)).map(x => (x._1._1._1, x._1._1._2, x._1._2._1, x._1._2._2, x._2))
 
   private class MappedKeysMap[T](kmap: Map[String, String], hmap: Map[String, T]) extends Map[String, T] {
-    def +[V1 >: T](kv: (String, V1)): Map[String, V1] = {
-      val key = kmap.getOrElse(kv._1, kv._1)
-      new MappedKeysMap(kmap, hmap + (key -> kv._2))
+    def removed(key: String): Map[String, T] = {
+      val mkey = kmap.getOrElse(key, key)
+      new MappedKeysMap(kmap, hmap - mkey)
+    }
+
+    def updated[V1 >: T](key: String, value: V1): Map[String, V1] = {
+      val _key = kmap.getOrElse(key, key)
+      new MappedKeysMap(kmap, hmap + (_key -> value))
     }
 
     def get(key: String): Option[T] = kmap.get(key).map(hmap.get).getOrElse(hmap.get(key))
@@ -87,11 +92,6 @@ object SparqlResultFormat {
     def iterator: Iterator[(String, T)] = {
       val ikmap = kmap.iterator.map(_.swap).toMap
       hmap.iterator.map(x => ikmap.getOrElse(x._1, x._1) -> x._2)
-    }
-
-    def -(key: String): Map[String, T] = {
-      val mkey = kmap.getOrElse(key, key)
-      new MappedKeysMap(kmap, hmap - mkey)
     }
   }
 

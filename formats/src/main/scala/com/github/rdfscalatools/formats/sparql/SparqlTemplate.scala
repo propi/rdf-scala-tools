@@ -51,7 +51,7 @@ object SparqlTemplate {
 
     def puri(prefixObject: Prefix, localName: String): Sparql = uri(s"${prefixObject.prefix}:$localName")
 
-    def literal(string: String): Sparql = "\"" + string.flatMap {
+    def literal(string: String): Sparql = "\"" + string.iterator.flatMap {
       case '\n' => 'n'
       case '\t' => 't'
       case '\b' => 'b'
@@ -61,7 +61,7 @@ object SparqlTemplate {
       case '\'' => '\''
       case '\\' => '\\'
       case x => List(x)
-    } + "\""
+    }.mkString + "\""
 
     def literal(boolean: Boolean): Sparql = if (boolean) "true" else "false"
 
@@ -79,7 +79,7 @@ object SparqlTemplate {
 
     def typedLiteral(string: String, _uri: String): Sparql = literal(string).body + "^^" + uri(_uri).body
 
-    def in(col: Traversable[Sparql]): Sparql = col.reduceLeftOption((a, b) => a.toString() + ", " + b.toString()).getOrElse("")
+    def in(col: Iterable[Sparql]): Sparql = col.reduceLeftOption((a, b) => a.toString() + ", " + b.toString()).getOrElse("")
 
     def variable(x: Char): Sparql = if (x >= 'a' && x <= 'z') "?" + x else throw new InvalidSparqlFormat("Invalid variable character in sparql query")
 
