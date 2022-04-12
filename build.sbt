@@ -2,7 +2,7 @@ name := "rdf-scala-tools"
 
 val basicSettings = Seq(
   organization := "com.github.propi",
-  version := "1.3.0",
+  version := "1.4.0",
   scalaVersion := "2.13.5",
   scalacOptions := Seq("-Ylog-classpath", "-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 )
