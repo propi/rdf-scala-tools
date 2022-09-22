@@ -15,6 +15,8 @@ object SparqlTemplate {
 
   object Sparql {
 
+    lazy val dummyUri: Sparql = curi("_:")
+
     implicit private def escapeChar(char: Char): Seq[Char] = List('\\', char)
 
     implicit private def stringToSparql(string: String): Sparql = new Sparql(string)
@@ -79,7 +81,7 @@ object SparqlTemplate {
 
     def typedLiteral(string: String, _uri: String): Sparql = literal(string).body + "^^" + uri(_uri).body
 
-    def in(col: Iterable[Sparql]): Sparql = col.reduceLeftOption((a, b) => a.toString() + ", " + b.toString()).getOrElse("")
+    def in(col: Iterable[Sparql]): Sparql = col.view.map(_.toString()).reduceLeftOption((a, b) => s"$a, $b").map(stringToSparql).getOrElse(dummyUri)
 
     def variable(x: Char): Sparql = if (x >= 'a' && x <= 'z') "?" + x else throw new InvalidSparqlFormat("Invalid variable character in sparql query")
 
