@@ -15,7 +15,7 @@ object SparqlTemplate {
 
   object Sparql {
 
-    lazy val dummyUri: Sparql = curi("_:")
+    lazy val dummyUri: Sparql = curi("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
 
     implicit private def escapeChar(char: Char): Seq[Char] = List('\\', char)
 
